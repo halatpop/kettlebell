@@ -8,252 +8,77 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kettlebell">
 <meta name="theme-color" content="#0a0a0a">
-<title>Kettlebell Full Body</title>
+<title>Kettlebell Custom</title>
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0a;
-    --surface: #141414;
-    --card: #1c1c1c;
-    --accent: #e8ff00;
-    --accent2: #ff4d00;
-    --text: #f0f0f0;
-    --muted: #666;
-    --rest-color: #00c9a7;
-    --work-color: #e8ff00;
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --bg: #0a0a0a; --surface: #141414; --card: #1c1c1c; --accent: #e8ff00;
+    --accent2: #ff4d00; --text: #f0f0f0; --muted: #666; --rest-color: #00c9a7;
+    --work-color: #e8ff00; --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans JP', sans-serif;
-    min-height: 100vh;
-    min-height: 100dvh;
-    overflow-x: hidden;
-    padding-top: var(--safe-top);
-    padding-bottom: var(--safe-bottom);
-  }
+  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans JP', sans-serif; min-height: 100vh; min-height: 100dvh; padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); overflow-x: hidden; }
 
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 24px 12px;
-    border-bottom: 1px solid #222;
-  }
-  .logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 28px;
-    letter-spacing: 3px;
-    color: var(--accent);
-  }
-  .badge {
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 12px; border-bottom: 1px solid #222; }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 3px; color: var(--accent); }
+  .badge { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
 
-  .timer-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 28px 24px 20px;
-    position: relative;
-  }
-  .phase-label {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px;
-    letter-spacing: 5px;
-    margin-bottom: 10px;
-    transition: color 0.3s;
-    color: var(--work-color);
-  }
+  .timer-section { display: flex; flex-direction: column; align-items: center; padding: 28px 24px 20px; position: relative; }
+  .phase-label { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 5px; margin-bottom: 10px; color: var(--work-color); }
   .phase-label.rest { color: var(--rest-color); }
   .phase-label.prepare { color: var(--accent2); }
 
-  .circle-wrap { position: relative; width: 200px; height: 200px; }
-  svg.ring { width: 200px; height: 200px; transform: rotate(-90deg); }
-  .ring-track { fill: none; stroke: #2a2a2a; stroke-width: 10; }
-  .ring-progress {
-    fill: none;
-    stroke: var(--work-color);
-    stroke-width: 10;
-    stroke-linecap: round;
-    stroke-dasharray: 565;
-    stroke-dashoffset: 0;
-    transition: stroke-dashoffset 0.9s linear, stroke 0.3s;
-  }
+  .circle-wrap { position: relative; width: 180px; height: 180px; }
+  svg.ring { width: 180px; height: 180px; transform: rotate(-90deg); }
+  .ring-track { fill: none; stroke: #2a2a2a; stroke-width: 8; }
+  .ring-progress { fill: none; stroke: var(--work-color); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 502; stroke-dashoffset: 0; transition: stroke-dashoffset 0.9s linear, stroke 0.3s; }
   .ring-progress.rest { stroke: var(--rest-color); }
   .ring-progress.prepare { stroke: var(--accent2); }
 
-  .timer-inner {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-  }
-  .timer-digits {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 72px; line-height: 1; color: var(--text);
-  }
+  .timer-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .timer-digits { font-family: 'Bebas Neue', sans-serif; font-size: 64px; line-height: 1; color: var(--text); }
   .timer-sub { font-size: 10px; color: var(--muted); letter-spacing: 2px; }
 
-  .exercise-card {
-    background: var(--card);
-    border: 1px solid #2a2a2a;
-    border-radius: 16px;
-    padding: 18px 20px;
-    margin: 16px 24px 0;
-    position: relative; overflow: hidden;
-  }
-  .exercise-card::before {
-    content: ''; position: absolute;
-    left: 0; top: 0; bottom: 0; width: 4px;
-    background: var(--accent);
-    border-radius: 4px 0 0 4px;
-  }
+  .exercise-card { background: var(--card); border: 1px solid #2a2a2a; border-radius: 16px; padding: 18px 20px; margin: 16px 24px 0; position: relative; overflow: hidden; }
+  .exercise-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent); }
   .exercise-card.rest-card::before { background: var(--rest-color); }
+  .ex-number { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: #2a2a2a; position: absolute; right: 14px; top: 8px; }
+  .ex-name { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--text); }
+  .ex-name-jp { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
 
-  .ex-number {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 48px; color: #2a2a2a;
-    position: absolute; right: 14px; top: 8px; line-height: 1;
-  }
-  .ex-block-label {
-    font-size: 10px; color: var(--muted);
-    letter-spacing: 2px; margin-bottom: 4px; text-transform: uppercase;
-  }
-  .ex-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 26px; letter-spacing: 1px; line-height: 1.1; color: var(--text);
-  }
-  .ex-name-jp { font-size: 12px; color: var(--muted); margin-top: 2px; margin-bottom: 8px; }
-  .ex-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-  .tag {
-    font-size: 10px; padding: 2px 8px; border-radius: 20px;
-    background: #252525; color: var(--muted); letter-spacing: 0.5px;
-  }
-  .tag.primary { background: rgba(232,255,0,0.12); color: var(--accent); }
+  /* 改善点：次のトレーニングを大きく */
+  .next-up { margin: 12px 24px 0; display: flex; flex-direction: column; gap: 4px; }
+  .next-label { font-size: 12px; color: var(--accent); font-weight: bold; }
+  .next-name { font-size: 22px; color: var(--text); font-weight: 700; }
 
-  /* 次のトレーニングを大きく修正 */
-  .next-up {
-    margin: 12px 24px 0;
-    display: flex; flex-direction: column; gap: 4px; padding: 10px 0;
-  }
-  .next-label { font-size: 12px; color: var(--accent); letter-spacing: 2px; font-weight: bold; }
-  .next-name { font-size: 22px; color: var(--text); font-weight: 700; line-height: 1.2; }
-
-  .progress-section {
-    margin: 14px 24px 0;
-    display: flex; align-items: center; gap: 10px;
-  }
+  .progress-section { margin: 14px 24px 0; display: flex; align-items: center; gap: 10px; }
   .progress-dots { display: flex; gap: 5px; flex-wrap: wrap; flex: 1; }
-  .dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: #2a2a2a; transition: background 0.3s;
-  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #2a2a2a; }
   .dot.done { background: var(--accent); }
   .dot.active { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
-  .progress-text { font-size: 11px; color: var(--muted); white-space: nowrap; letter-spacing: 1px; }
 
-  .set-info {
-    display: flex; justify-content: space-between;
-    padding: 10px 24px; margin-top: 10px;
-  }
-  .set-stat { text-align: center; }
-  .set-stat-val {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px; color: var(--text); display: block;
-  }
-  .set-stat-label { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .controls { display: flex; gap: 16px; padding: 20px 24px; }
+  .btn { border: none; cursor: pointer; border-radius: 50px; font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; }
+  .btn-main { background: var(--accent); color: #000; font-size: 18px; padding: 14px; flex: 2; }
+  .btn-sub { background: var(--card); color: var(--text); font-size: 14px; padding: 14px; flex: 1; border: 1px solid #2a2a2a; }
 
-  .controls {
-    display: flex; justify-content: center;
-    gap: 16px; padding: 16px 24px 24px;
-  }
-  .btn {
-    border: none; cursor: pointer; border-radius: 50px;
-    font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px;
-    transition: all 0.15s; -webkit-tap-highlight-color: transparent;
-  }
-  .btn-main {
-    background: var(--accent); color: #000;
-    font-size: 18px; padding: 14px 40px; flex: 1; max-width: 200px;
-  }
-  .btn-main:active { transform: scale(0.96); }
-  .btn-sub {
-    background: var(--card); color: var(--text);
-    font-size: 15px; padding: 14px 22px; border: 1px solid #2a2a2a;
-  }
-  .btn-sub:active { transform: scale(0.96); }
+  /* 設定画面：種目選択 */
+  .settings-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.9); overflow-y: auto; padding: 20px; }
+  .settings-overlay.show { display: block; }
+  .settings-content { max-width: 480px; margin: 0 auto; background: #181818; border-radius: 20px; padding: 24px; }
+  .master-list { margin: 20px 0; max-height: 300px; overflow-y: auto; border: 1px solid #333; border-radius: 10px; padding: 10px; }
+  .master-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #222; }
+  .master-item input { transform: scale(1.3); accent-color: var(--accent); }
+  .master-item label { font-size: 13px; flex: 1; }
 
-  .list-section {
-    padding: 0 24px 32px;
-    border-top: 1px solid #1e1e1e;
-    margin-top: 8px; padding-top: 16px;
-  }
-  .list-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 14px; letter-spacing: 3px; color: var(--muted); margin-bottom: 10px;
-  }
-  .list-item {
-    display: flex; align-items: center;
-    padding: 10px 0; border-bottom: 1px solid #1a1a1a;
-    gap: 12px; opacity: 0.55; transition: opacity 0.3s;
-  }
-  .list-item.current { opacity: 1; }
-  .list-item.done-item { opacity: 0.3; }
-  .list-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px; color: var(--muted); width: 22px; text-align: right; flex-shrink: 0;
-  }
-  .list-item.current .list-num { color: var(--accent); }
-  .list-info { flex: 1; }
-  .list-name { font-size: 13px; font-weight: 700; }
-  .list-detail { font-size: 11px; color: var(--muted); margin-top: 1px; }
-  .list-muscle { font-size: 10px; color: var(--muted); text-align: right; flex-shrink: 0; }
-
-  /* 完了画面・フラッシュ・設定パネル等のスタイルは省略せず維持 */
-  .finished-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.92); z-index: 100;
-    flex-direction: column; align-items: center; justify-content: center; gap: 12px;
-  }
-  .finished-overlay.show { display: flex; }
-  .finished-title { font-family: 'Bebas Neue', sans-serif; font-size: 56px; color: var(--accent); letter-spacing: 4px; animation: pop 0.5s ease; }
-  .finished-sub { font-size: 14px; color: var(--muted); letter-spacing: 2px; }
-  .finished-stats { display: flex; gap: 36px; margin: 16px 0; }
-  .finished-stat { text-align: center; }
-  .finished-stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--text); display: block; }
-  .finished-stat-label { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
-  @keyframes pop { 0%{transform:scale(0.7);opacity:0} 80%{transform:scale(1.05)} 100%{transform:scale(1);opacity:1} }
-
-  .flash { position: fixed; inset: 0; pointer-events: none; z-index: 50; opacity: 0; transition: opacity 0.1s; }
+  .flash { position: fixed; inset: 0; pointer-events: none; z-index: 50; opacity: 0; }
+  .flash.show { opacity: 1; transition: opacity 0.1s; }
   .flash.work { background: rgba(232,255,0,0.06); }
   .flash.rest { background: rgba(0,201,167,0.06); }
-  .flash.show { opacity: 1; }
 
-  #settingsBtn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 22px; padding: 4px 8px; }
-  .settings-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); align-items: flex-end; justify-content: center; }
-  .settings-overlay.show { display: flex; }
-  .settings-sheet { background: #181818; border-radius: 24px 24px 0 0; padding: 24px 24px 40px; width: 100%; max-width: 480px; animation: slideUp 0.25s ease; }
-  @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-  .settings-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; color: var(--text); margin-bottom: 20px; text-align: center; }
-  .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #252525; }
-  .settings-label { font-size: 13px; color: var(--text); }
-  .settings-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
-  .settings-control { display: flex; align-items: center; gap: 12px; }
-  .s-btn { width: 36px; height: 36px; border-radius: 50%; background: #2a2a2a; border: none; color: var(--text); font-size: 20px; }
-  .s-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--accent); min-width: 52px; text-align: center; }
-  .s-unit { font-size: 11px; color: var(--muted); }
-  .settings-actions { display: flex; gap: 12px; margin-top: 24px; }
-  .btn-settings-apply { flex: 1; background: var(--accent); color: #000; font-family: 'Bebas Neue', sans-serif; font-size: 18px; padding: 14px; border-radius: 50px; border: none; }
-  .btn-settings-cancel { background: #2a2a2a; color: var(--text); font-family: 'Bebas Neue', sans-serif; font-size: 15px; padding: 14px 20px; border-radius: 50px; border: none; }
-  .estimated-time { text-align: center; margin-top: 16px; font-size: 12px; color: var(--muted); }
-  .estimated-time strong { color: var(--text); }
+  .finished-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 300; flex-direction: column; align-items: center; justify-content: center; }
+  .finished-overlay.show { display: flex; }
 </style>
 </head>
 <body>
@@ -262,8 +87,8 @@
 
 <header>
   <div class="logo">KETTLEBELL</div>
-  <button id="settingsBtn" onclick="openSettings()">⚙️</button>
-  <div class="badge">12 kg · Full Body · 40/30 · 10種目</div>
+  <button style="background:none; border:none; color:var(--muted); font-size:24px;" onclick="openSettings()">⚙️</button>
+  <div class="badge" id="headerBadge">Custom Menu</div>
 </header>
 
 <div class="timer-section">
@@ -271,10 +96,10 @@
   <div class="circle-wrap">
     <svg class="ring" viewBox="0 0 200 200">
       <circle class="ring-track" cx="100" cy="100" r="90"/>
-      <circle class="ring-progress" id="ringProgress" cx="100" cy="100" r="90"/>
+      <circle class="ring-progress" id="ringProgress" cx="100" cy="100" r="80"/>
     </svg>
     <div class="timer-inner">
-      <div class="timer-digits" id="timerDigits">0:40</div>
+      <div class="timer-digits" id="timerDigits">0:00</div>
       <div class="timer-sub" id="timerSub">WORK TIME</div>
     </div>
   </div>
@@ -282,309 +107,212 @@
 
 <div class="exercise-card" id="exCard">
   <div class="ex-number" id="exNumber">1</div>
-  <div class="ex-block-label">現在のエクサ</div>
-  <div class="ex-name" id="exName">KETTLEBELL SWING</div>
-  <div class="ex-name-jp" id="exNameJp">ケトルベルスイング</div>
-  <div class="ex-tags" id="exTags"></div>
+  <div class="ex-name" id="exName">STARTING...</div>
+  <div class="ex-name-jp" id="exNameJp">準備してください</div>
 </div>
 
 <div class="next-up">
   <div class="next-label">NEXT →</div>
-  <div class="next-name" id="nextName">クリーン＆プレス（右）</div>
+  <div class="next-name" id="nextName">---</div>
 </div>
 
 <div class="progress-section">
   <div class="progress-dots" id="progressDots"></div>
-  <div class="progress-text" id="progressText">1 / 10</div>
-</div>
-
-<div class="set-info">
-  <div class="set-stat">
-    <span class="set-stat-val" id="setVal">1</span>
-    <span class="set-stat-label">セット</span>
-  </div>
-  <div class="set-stat">
-    <span class="set-stat-val" id="totalSets">3</span>
-    <span class="set-stat-label">/ 3 セット</span>
-  </div>
-  <div class="set-stat">
-    <span class="set-stat-val" id="elapsedVal">0:00</span>
-    <span class="set-stat-label">経過時間</span>
-  </div>
 </div>
 
 <div class="controls">
   <button class="btn btn-sub" onclick="resetWorkout()">リセット</button>
   <button class="btn btn-main" id="startBtn" onclick="toggleStartPause()">スタート</button>
-  <button class="btn btn-sub" onclick="skipPhase()">スキップ</button>
 </div>
 
-<div class="list-section">
-  <div class="list-title">エクササイズ一覧</div>
-  <div id="exerciseList"></div>
+<div class="settings-overlay" id="settingsOverlay">
+  <div class="settings-content">
+    <h2 style="font-family:'Bebas Neue'; letter-spacing:2px; text-align:center;">SETTINGS</h2>
+    <div style="margin-top:15px; display:flex; justify-content:space-around; text-align:center;">
+        <div><label style="font-size:10px;">WORK</label><br><input type="number" id="sWork" value="40" style="width:50px; background:#222; color:#fff; border:none; text-align:center;"></div>
+        <div><label style="font-size:10px;">REST</label><br><input type="number" id="sRest" value="30" style="width:50px; background:#222; color:#fff; border:none; text-align:center;"></div>
+        <div><label style="font-size:10px;">SETS</label><br><input type="number" id="sSets" value="3" style="width:40px; background:#222; color:#fff; border:none; text-align:center;"></div>
+    </div>
+    <p style="font-size:12px; margin-top:20px; color:var(--accent);">種目選択（マスターリスト）:</p>
+    <div class="master-list" id="masterListUI"></div>
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button class="btn btn-sub" style="flex:1" onclick="closeSettings()">閉じる</button>
+      <button class="btn btn-main" style="flex:2" onclick="applySettings()">保存して適用</button>
+    </div>
+  </div>
 </div>
 
 <div class="finished-overlay" id="finishedOverlay">
-  <div class="finished-title">完了！</div>
-  <div class="finished-sub">WORKOUT COMPLETE</div>
-  <div class="finished-stats">
-    <div class="finished-stat">
-      <span class="finished-stat-val" id="finTotalTime">—</span>
-      <span class="finished-stat-label">合計時間</span>
-    </div>
-    <div class="finished-stat">
-      <span class="finished-stat-val" id="finExCount">—</span>
-      <span class="finished-stat-label">セット数</span>
-    </div>
-  </div>
-  <button class="btn btn-main" onclick="resetWorkout(); document.getElementById('finishedOverlay').classList.remove('show')">もう一度</button>
-</div>
-
-<div class="settings-overlay" id="settingsOverlay" onclick="if(event.target===this)closeSettings()">
-  <div class="settings-sheet">
-    <div class="settings-title">⚙ SETTINGS</div>
-    <div class="settings-row">
-      <div><div class="settings-label">トレーニング時間</div><div class="settings-sub">WORK</div></div>
-      <div class="settings-control">
-        <button class="s-btn" onclick="adjustSetting('work',-5)">−</button>
-        <div><span class="s-val" id="sWorkVal">40</span><span class="s-unit">秒</span></div>
-        <button class="s-btn" onclick="adjustSetting('work',5)">+</button>
-      </div>
-    </div>
-    <div class="settings-row">
-      <div><div class="settings-label">インターバル時間</div><div class="settings-sub">REST</div></div>
-      <div class="settings-control">
-        <button class="s-btn" onclick="adjustSetting('rest',-5)">−</button>
-        <div><span class="s-val" id="sRestVal">30</span><span class="s-unit">秒</span></div>
-        <button class="s-btn" onclick="adjustSetting('rest',5)">+</button>
-      </div>
-    </div>
-    <div class="settings-row">
-      <div><div class="settings-label">セット数</div><div class="settings-sub">SETS</div></div>
-      <div class="settings-control">
-        <button class="s-btn" onclick="adjustSetting('sets',-1)">−</button>
-        <div><span class="s-val" id="sSetsVal">3</span><span class="s-unit">セット</span></div>
-        <button class="s-btn" onclick="adjustSetting('sets',1)">+</button>
-      </div>
-    </div>
-    <div class="estimated-time" id="estimatedTime"></div>
-    <div class="settings-actions">
-      <button class="btn-settings-cancel" onclick="closeSettings()">キャンセル</button>
-      <button class="btn-settings-apply" onclick="applySettings()">適用してリセット</button>
-    </div>
-  </div>
+  <h1 style="font-family:'Bebas Neue'; font-size:60px; color:var(--accent);">FINISH!</h1>
+  <button class="btn btn-main" style="width:200px; margin-top:20px;" onclick="location.reload()">CLOSE</button>
 </div>
 
 <script>
-// ── PWA: Service Worker ──
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); });
-}
-
-// ── スリープ防止 (Wake Lock API) ──
-let wakeLock = null;
-async function requestWakeLock() {
-  try {
-    if ('wakeLock' in navigator) {
-      wakeLock = await navigator.wakeLock.request('screen');
-    }
-  } catch (err) { console.error(`${err.name}, ${err.message}`); }
-}
-
-// ── WORKOUT DATA ──
-const EXERCISES = [
-  { name: "Kettlebell Swing",    jp: "ケトルベルスイング",       muscle: "臀部・ハム・背中", tags: ["全身パワー", "有酸素"], focus: "primary" },
-  { name: "Clean & Press (R)",   jp: "クリーン＆プレス（右）",   muscle: "肩・胸・体幹",     tags: ["押す", "体幹安定"],     focus: "primary" },
-  { name: "Clean & Press (L)",   jp: "クリーン＆プレス（左）",   muscle: "肩・胸・体幹",     tags: ["押す", "体幹安定"],     focus: "" },
-  { name: "Goblet Squat",        jp: "ゴブレットスクワット",      muscle: "大腿四頭筋・臀部", tags: ["脚", "体幹"],           focus: "primary" },
-  { name: "Bent-over Row (R)",   jp: "ベントオーバーロウ（右）", muscle: "広背筋・菱形筋",   tags: ["引く", "姿勢改善"],     focus: "" },
-  { name: "Bent-over Row (L)",   jp: "ベントオーバーロウ（左）", muscle: "広背筋・菱形筋",   tags: ["引く", "姿勢改善"],     focus: "" },
-  { name: "Romanian Deadlift",   jp: "ルーマニアンDL",           muscle: "ハムストリングス・臀部", tags: ["後面連鎖", "脚持久力"], focus: "primary" },
-  { name: "Suitcase Carry (R)",  jp: "スーツケースキャリー（右）", muscle: "体幹・腰方形筋", tags: ["体幹", "片側安定"],     focus: "" },
-  { name: "Suitcase Carry (L)",  jp: "スーツケースキャリー（左）", muscle: "体幹・腰方形筋", tags: ["体幹", "片側安定"],     focus: "" },
-  { name: "Kettlebell Halo",     jp: "ケトルベル・ハロー",       muscle: "肩・胸・体幹",     tags: ["可動域", "腕振り改善"], focus: "" },
+// --- マスターリスト ---
+const MASTER_EXERCISES = [
+  { id: 1, name: "Kettlebell Swing", jp: "ケトルベルスイング" },
+  { id: 2, name: "Clean & Press (R)", jp: "クリーン＆プレス（右）" },
+  { id: 3, name: "Clean & Press (L)", jp: "クリーン＆プレス（左）" },
+  { id: 4, name: "Goblet Squat", jp: "ゴブレットスクワット" },
+  { id: 5, name: "Bent-over Row (R)", jp: "ベントオーバーロウ（右）" },
+  { id: 6, name: "Bent-over Row (L)", jp: "ベントオーバーロウ（左）" },
+  { id: 7, name: "Romanian Deadlift", jp: "ルーマニアンDL" },
+  { id: 8, name: "Split Squat (R)", jp: "スプリットスクワット（右）" },
+  { id: 9, name: "Split Squat (L)", jp: "スプリットスクワット（左）" },
+  { id: 10, name: "Shoulder Press (R)", jp: "ショルダープレス（右）" },
+  { id: 11, name: "Shoulder Press (L)", jp: "ショルダープレス（左）" },
+  { id: 12, name: "French Press", jp: "フレンチプレス（上腕三頭筋）" },
+  { id: 13, name: "Kettlebell Halo", jp: "ケトルベル・ハロー" },
+  { id: 14, name: "Suitcase Carry (R)", jp: "スーツケースキャリー（右）" },
+  { id: 15, name: "Suitcase Carry (L)", jp: "スーツケースキャリー（左）" },
+  { id: 16, name: "Lunge (R)", jp: "ランジ（右）" },
+  { id: 17, name: "Lunge (L)", jp: "ランジ（左）" },
+  { id: 18, name: "Russian Twist", jp: "ロシアンツイスト" },
+  { id: 19, name: "Upright Row", jp: "アップライトロウ" },
+  { id: 20, name: "Snatch", jp: "ケトルベル・スナッチ" }
 ];
 
+let selectedExIds = [1, 2, 3, 4, 5, 6, 7, 12, 13, 20]; // デフォルト選択
+let workoutList = [];
 let WORK = 40, REST = 30, TOTAL_SETS = 3;
-const circumference = 2 * Math.PI * 90;
 
-let currentExIdx = 0, currentSet = 1, isWork = true;
-let timeLeft = WORK, isRunning = false, isPreparing = false;
-let interval = null, elapsedSeconds = 0, elapsedInterval = null;
+// --- 状態管理 ---
+let currentExIdx = 0, currentSet = 1, isWork = true, isPreparing = false;
+let timeLeft = WORK, isRunning = false, interval = null, wakeLock = null;
 
-// ── AUDIO ──
+// --- オーディオ ---
 let audioCtx = null;
-function getAudioCtx() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
-function beep({ freq=880, duration=0.12, gain=0.5, delay=0 }={}) {
+function beep(f, d) {
   try {
-    const ctx = getAudioCtx(); const osc = ctx.createOscillator(); const g = ctx.createGain();
-    osc.connect(g); g.connect(ctx.destination); osc.frequency.value = freq;
-    g.gain.setValueAtTime(0, ctx.currentTime + delay);
-    g.gain.linearRampToValueAtTime(gain, ctx.currentTime + delay + 0.01);
-    g.gain.linearRampToValueAtTime(0, ctx.currentTime + delay + duration);
-    osc.start(ctx.currentTime + delay); osc.stop(ctx.currentTime + delay + duration + 0.05);
-  } catch(e) {}
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
+    osc.connect(g); g.connect(audioCtx.destination);
+    osc.frequency.value = f; g.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+    osc.start(); osc.stop(audioCtx.currentTime + d);
+  } catch(e){}
 }
-function soundWarning() { beep({ freq:1046, duration:0.1, gain:0.4 }); }
-function soundWorkEnd() { beep({ freq:1318, duration:0.12, gain:0.6, delay:0 }); beep({ freq:1318, duration:0.12, gain:0.6, delay:0.18 }); }
-function soundRestEnd() { beep({ freq:880, duration:0.1, gain:0.5, delay:0 }); beep({ freq:1318, duration:0.18, gain:0.7, delay:0.14 }); }
-function soundComplete() { beep({ freq:1046, duration:0.15, gain:0.6, delay:0 }); beep({ freq:1318, duration:0.15, gain:0.6, delay:0.2 }); beep({ freq:1568, duration:0.3,  gain:0.7, delay:0.4 }); }
 
-// ── UTILS ──
-function formatTime(s) { return `0:${s<10?'0':''}${s}`; }
-function formatElapsed(s) { const m = Math.floor(s/60), sec = s%60; return `${m}:${sec<10?'0':''}${sec}`; }
-
-function buildList() {
-  const list = document.getElementById('exerciseList'); list.innerHTML = '';
-  EXERCISES.forEach((ex, i) => {
-    const item = document.createElement('div'); item.className = 'list-item' + (i===0?' current':''); item.id = 'listItem'+i;
-    item.innerHTML = `<div class="list-num">${i+1}</div><div class="list-info"><div class="list-name">${ex.name}</div><div class="list-detail">${ex.jp}</div></div><div class="list-muscle">${ex.muscle}</div>`;
-    list.appendChild(item);
-  });
+// --- 初期化 ---
+function init() {
+  workoutList = MASTER_EXERCISES.filter(ex => selectedExIds.includes(ex.id));
+  const masterUI = document.getElementById('masterListUI');
+  masterUI.innerHTML = MASTER_EXERCISES.map(ex => `
+    <div class="master-item">
+      <input type="checkbox" id="ex${ex.id}" ${selectedExIds.includes(ex.id)?'checked':''}>
+      <label for="ex${ex.id}">${ex.name}<br><span style="color:#666; font-size:10px;">${ex.jp}</span></label>
+    </div>
+  `).join('');
+  buildDots();
+  updateUI();
 }
+
 function buildDots() {
-  const dots = document.getElementById('progressDots'); dots.innerHTML = '';
-  EXERCISES.forEach((_, i) => {
-    const dot = document.createElement('div'); dot.className = 'dot'+(i===0?' active':''); dot.id = 'dot'+i; dots.appendChild(dot);
-  });
+  const dots = document.getElementById('progressDots');
+  dots.innerHTML = workoutList.map((_, i) => `<div class="dot" id="dot${i}"></div>`).join('');
 }
 
 function updateUI() {
-  const ex = EXERCISES[currentExIdx];
-  const nextEx = EXERCISES[(currentExIdx+1) % EXERCISES.length];
-  const phaseLabel = document.getElementById('phaseLabel');
-  const ringProgress = document.getElementById('ringProgress');
-  const timerSub = document.getElementById('timerSub');
-  const exCard = document.getElementById('exCard');
-
+  const ex = workoutList[currentExIdx];
+  const nextEx = workoutList[(currentExIdx + 1) % workoutList.length];
+  const ring = document.getElementById('ringProgress');
+  const digits = document.getElementById('timerDigits');
+  
   if (isPreparing) {
-    phaseLabel.textContent = 'PREPARE'; phaseLabel.className = 'phase-label prepare';
-    ringProgress.className = 'ring-progress prepare';
-    timerSub.textContent = 'READY?';
-  } else if (!isWork) {
-    phaseLabel.textContent = 'REST'; phaseLabel.className = 'phase-label rest';
-    ringProgress.className = 'ring-progress rest';
-    timerSub.textContent = 'REST TIME'; exCard.className = 'exercise-card rest-card';
+    document.getElementById('phaseLabel').textContent = "PREPARE";
+    document.getElementById('phaseLabel').className = "phase-label prepare";
+    digits.textContent = timeLeft;
+    ring.style.stroke = "var(--accent2)";
   } else {
-    phaseLabel.textContent = 'WORK'; phaseLabel.className = 'phase-label';
-    ringProgress.className = 'ring-progress';
-    timerSub.textContent = 'WORK TIME'; exCard.className = 'exercise-card';
+    document.getElementById('phaseLabel').textContent = isWork ? "WORK" : "REST";
+    document.getElementById('phaseLabel').className = isWork ? "phase-label" : "phase-label rest";
+    digits.textContent = `0:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
+    ring.style.stroke = isWork ? "var(--work-color)" : "var(--rest-color)";
   }
 
   const total = isPreparing ? 5 : (isWork ? WORK : REST);
-  ringProgress.style.strokeDashoffset = circumference * (1 - timeLeft/total);
-  document.getElementById('timerDigits').textContent = isPreparing ? timeLeft : formatTime(timeLeft);
+  ring.style.strokeDashoffset = 502 * (1 - timeLeft / total);
 
-  document.getElementById('exNumber').textContent = currentExIdx+1;
   document.getElementById('exName').textContent = ex.name;
-  let jpText = ex.jp;
-  if (ex.name === 'Kettlebell Halo' && isWork && !isPreparing) {
-    const elapsed = WORK - timeLeft; jpText += elapsed < WORK/2 ? '　🔄 時計回り' : '　🔁 反時計回り';
-  }
-  document.getElementById('exNameJp').textContent = jpText;
-  document.getElementById('exTags').innerHTML = ex.tags.map((t,i) => `<span class="tag${i===0&&ex.focus==='primary'?' primary':''}">${t}</span>`).join('');
+  document.getElementById('exNameJp').textContent = ex.jp;
+  document.getElementById('exNumber').textContent = currentExIdx + 1;
+  document.getElementById('nextName').textContent = isWork ? `REST (${REST}s)` : nextEx.jp;
+  document.getElementById('headerBadge').textContent = `Set ${currentSet}/${TOTAL_SETS} · ${workoutList.length} EX`;
 
-  document.getElementById('nextName').textContent = isPreparing ? ex.jp : (isWork ? `REST (${REST}秒)` : nextEx.jp);
-
-  document.getElementById('progressText').textContent = `${currentExIdx+1} / ${EXERCISES.length}`;
-  EXERCISES.forEach((_,i) => {
-    const dot = document.getElementById('dot'+i); if (dot) dot.className = 'dot'+(i<currentExIdx?' done':i===currentExIdx?' active':'');
-    const item = document.getElementById('listItem'+i); if (item) item.className = 'list-item'+(i<currentExIdx?' done-item':i===currentExIdx?' current':'');
+  workoutList.forEach((_, i) => {
+    const dot = document.getElementById('dot'+i);
+    if(dot) dot.className = `dot ${i < currentExIdx ? 'done' : (i === currentExIdx ? 'active' : '')}`;
   });
-  document.getElementById('setVal').textContent = currentSet;
 }
 
 function tick() {
-  if (isPreparing) {
-    if (timeLeft > 1) { timeLeft--; soundWarning(); }
-    else { isPreparing = false; timeLeft = WORK; isWork = true; soundRestEnd(); startElapsed(); }
-    updateUI(); return;
-  }
-
   timeLeft--;
-  if (timeLeft === 5) soundWarning();
   if (timeLeft < 0) {
-    if (isWork) { soundWorkEnd(); isWork = false; timeLeft = REST; flash('rest'); }
-    else {
+    if (isPreparing) {
+      isPreparing = false; isWork = true; timeLeft = WORK; beep(880, 0.5);
+    } else if (isWork) {
+      isWork = false; timeLeft = REST; flash('rest'); beep(440, 0.3);
+    } else {
       currentExIdx++;
-      if (currentExIdx >= EXERCISES.length) {
+      if (currentExIdx >= workoutList.length) {
         if (currentSet >= TOTAL_SETS) {
-          clearInterval(interval); clearInterval(elapsedInterval); isRunning = false; soundComplete();
-          document.getElementById('finTotalTime').textContent = formatElapsed(elapsedSeconds);
-          document.getElementById('finExCount').textContent = EXERCISES.length * TOTAL_SETS;
+          clearInterval(interval);
           document.getElementById('finishedOverlay').classList.add('show');
-          if (wakeLock) wakeLock.release();
           return;
         }
         currentSet++; currentExIdx = 0;
       }
-      soundRestEnd(); isWork = true; timeLeft = WORK; flash('work');
+      isWork = true; timeLeft = WORK; flash('work'); beep(880, 0.5);
     }
+  } else if (timeLeft <= 3) {
+    beep(660, 0.1);
   }
   updateUI();
 }
 
-function startElapsed() {
-  if (elapsedInterval) clearInterval(elapsedInterval);
-  elapsedInterval = setInterval(() => { elapsedSeconds++; document.getElementById('elapsedVal').textContent = formatElapsed(elapsedSeconds); }, 1000);
-}
-
-function toggleStartPause() {
-  const btn = document.getElementById('startBtn');
+async function toggleStartPause() {
   if (isRunning) {
-    clearInterval(interval); clearInterval(elapsedInterval); isRunning = false; btn.textContent = 'つづける';
-    if (wakeLock) wakeLock.release();
+    clearInterval(interval); isRunning = false;
+    document.getElementById('startBtn').textContent = "つづける";
+    if(wakeLock) wakeLock.release();
   } else {
-    requestWakeLock();
-    if (elapsedSeconds === 0 && currentExIdx === 0 && !isPreparing) { isPreparing = true; timeLeft = 5; }
-    else if (!isPreparing) { startElapsed(); }
-    interval = setInterval(tick, 1000); isRunning = true; btn.textContent = 'ポーズ';
+    if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+    if (currentExIdx === 0 && currentSet === 1 && timeLeft === WORK) {
+      isPreparing = true; timeLeft = 5;
+    }
+    interval = setInterval(tick, 1000); isRunning = true;
+    document.getElementById('startBtn').textContent = "ポーズ";
   }
 }
 
-function flash(type) { const el = document.getElementById('flash'); el.className = `flash ${type} show`; setTimeout(() => el.className = `flash ${type}`, 200); }
-function skipPhase() { timeLeft = 0; if (!isRunning) { tick(); updateUI(); } }
-function resetWorkout() {
-  clearInterval(interval); clearInterval(elapsedInterval); isRunning = false; isPreparing = false;
-  currentExIdx = 0; currentSet = 1; isWork = true; timeLeft = WORK; elapsedSeconds = 0;
-  document.getElementById('startBtn').textContent = 'スタート';
-  document.getElementById('elapsedVal').textContent = '0:00';
-  buildDots(); buildList(); updateUI();
+function flash(type) {
+  const f = document.getElementById('flash'); f.className = `flash ${type} show`;
+  setTimeout(() => f.className = 'flash', 200);
 }
 
-buildList(); buildDots(); updateUI();
-
-// ── SETTINGS ──
-let tmpWork, tmpRest, tmpSets;
-function openSettings() {
-  tmpWork = WORK; tmpRest = REST; tmpSets = TOTAL_SETS;
-  document.getElementById('sWorkVal').textContent = tmpWork;
-  document.getElementById('sRestVal').textContent = tmpRest;
-  document.getElementById('sSetsVal').textContent = tmpSets;
-  updateEstimatedTime();
-  document.getElementById('settingsOverlay').classList.add('show');
-}
+function openSettings() { document.getElementById('settingsOverlay').classList.add('show'); }
 function closeSettings() { document.getElementById('settingsOverlay').classList.remove('show'); }
-function adjustSetting(type, delta) {
-  if (type === 'work') tmpWork = Math.max(10, Math.min(120, tmpWork + delta));
-  else if (type === 'rest') tmpRest = Math.max(5, Math.min(120, tmpRest + delta));
-  else if (type === 'sets') tmpSets = Math.max(1, Math.min(10, tmpSets + delta));
-  document.getElementById('sWorkVal').textContent = tmpWork;
-  document.getElementById('sRestVal').textContent = tmpRest;
-  document.getElementById('sSetsVal').textContent = tmpSets;
-  updateEstimatedTime();
-}
-function updateEstimatedTime() {
-  const totalSec = (tmpWork + tmpRest) * EXERCISES.length * tmpSets;
-  const m = Math.floor(totalSec / 60), s = totalSec % 60;
-  document.getElementById('estimatedTime').innerHTML = `推定時間: <strong>${m}分${s > 0 ? s + '秒' : ''}</strong>`;
-}
+
 function applySettings() {
-  WORK = tmpWork; REST = tmpRest; TOTAL_SETS = tmpSets;
-  document.getElementById('totalSets').textContent = TOTAL_SETS;
-  document.querySelector('.badge').textContent = `12 kg · ${WORK}s WORK · ${REST}s REST · ${TOTAL_SETS}セット`;
-  closeSettings(); resetWorkout();
+  WORK = parseInt(document.getElementById('sWork').value);
+  REST = parseInt(document.getElementById('sRest').value);
+  TOTAL_SETS = parseInt(document.getElementById('sSets').value);
+  
+  selectedExIds = MASTER_EXERCISES.filter(ex => document.getElementById(`ex${ex.id}`).checked).map(ex => ex.id);
+  
+  closeSettings();
+  resetWorkout();
 }
+
+function resetWorkout() {
+  clearInterval(interval); isRunning = false;
+  currentExIdx = 0; currentSet = 1; isWork = true; isPreparing = false;
+  timeLeft = WORK;
+  document.getElementById('startBtn').textContent = "スタート";
+  init();
+}
+
+init();
 </script>
 </body>
 </html>
