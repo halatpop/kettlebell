@@ -349,6 +349,97 @@
     font-size: 12px; color: var(--muted);
   }
   .estimated-time strong { color: var(--text); }
+
+  /* ── EXERCISE SELECTOR ── */
+  .ex-selector-overlay {
+    display: none; position: fixed; inset: 0; z-index: 250;
+    background: #0f0f0f;
+    flex-direction: column;
+    padding-top: var(--safe-top);
+    padding-bottom: var(--safe-bottom);
+  }
+  .ex-selector-overlay.show { display: flex; }
+
+  .ex-selector-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid #222;
+    flex-shrink: 0;
+  }
+  .ex-selector-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px; letter-spacing: 3px; color: var(--text);
+  }
+  .ex-selector-close {
+    background: none; border: none; color: var(--muted);
+    font-size: 22px; cursor: pointer; padding: 4px 8px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .preset-bar {
+    display: flex; gap: 8px; padding: 12px 24px;
+    border-bottom: 1px solid #1e1e1e;
+    flex-shrink: 0;
+  }
+  .preset-label {
+    font-size: 10px; color: var(--muted); letter-spacing: 2px;
+    align-self: center; white-space: nowrap; margin-right: 2px;
+  }
+  .btn-preset {
+    background: #252525; border: 1px solid #333; color: var(--text);
+    font-family: 'Bebas Neue', sans-serif; font-size: 13px;
+    letter-spacing: 1px; padding: 7px 14px; border-radius: 20px;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .btn-preset:active { background: #333; }
+  .btn-preset.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  .ex-selector-count {
+    font-size: 11px; color: var(--muted); padding: 8px 24px 4px;
+    flex-shrink: 0;
+  }
+  .ex-selector-count span { color: var(--accent); font-weight: 700; }
+
+  .ex-selector-list {
+    flex: 1; overflow-y: auto; padding: 4px 24px 16px;
+  }
+  .ex-check-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 0; border-bottom: 1px solid #1a1a1a;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .ex-check-box {
+    width: 22px; height: 22px; border-radius: 6px;
+    border: 2px solid #333; background: #1c1c1c;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.15s;
+  }
+  .ex-check-item.checked .ex-check-box {
+    background: var(--accent); border-color: var(--accent);
+  }
+  .ex-check-box::after {
+    content: '✓'; font-size: 13px; font-weight: 700; color: #000;
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .ex-check-item.checked .ex-check-box::after { opacity: 1; }
+  .ex-check-info { flex: 1; }
+  .ex-check-name { font-size: 13px; font-weight: 700; color: var(--text); }
+  .ex-check-jp { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .ex-check-muscle { font-size: 10px; color: var(--muted); text-align: right; flex-shrink: 0; }
+
+  .ex-selector-footer {
+    padding: 14px 24px 20px;
+    border-top: 1px solid #1e1e1e;
+    flex-shrink: 0;
+  }
+  .btn-ex-apply {
+    width: 100%; background: var(--accent); color: #000;
+    font-family: 'Bebas Neue', sans-serif; font-size: 18px;
+    letter-spacing: 2px; padding: 14px; border-radius: 50px; border: none;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .btn-ex-apply:disabled { background: #333; color: var(--muted); cursor: default; }
 </style>
 </head>
 <body>
@@ -358,7 +449,7 @@
 <header>
   <div class="logo">KETTLEBELL</div>
   <button id="settingsBtn" onclick="openSettings()">⚙️</button>
-  <div class="badge">12 kg · Full Body · 40/30 · 10種目</div>
+  <div class="badge">Full Body · 40/30 · 10種目</div>
 </header>
 
 <!-- PWA install banner -->
@@ -474,19 +565,50 @@ window.addEventListener('appinstalled', () => {
   document.getElementById('installBanner').classList.remove('show');
 });
 
-// ── WORKOUT DATA ──
-const EXERCISES = [
-  { name: "Kettlebell Swing",    jp: "ケトルベルスイング",       muscle: "臀部・ハム・背中", tags: ["全身パワー", "有酸素"], focus: "primary" },
-  { name: "Clean & Press (R)",   jp: "クリーン＆プレス（右）",   muscle: "肩・胸・体幹",     tags: ["押す", "体幹安定"],     focus: "primary" },
-  { name: "Clean & Press (L)",   jp: "クリーン＆プレス（左）",   muscle: "肩・胸・体幹",     tags: ["押す", "体幹安定"],     focus: "" },
-  { name: "Goblet Squat",        jp: "ゴブレットスクワット",      muscle: "大腿四頭筋・臀部", tags: ["脚", "体幹"],           focus: "primary" },
-  { name: "Bent-over Row (R)",   jp: "ベントオーバーロウ（右）", muscle: "広背筋・菱形筋",   tags: ["引く", "姿勢改善"],     focus: "" },
-  { name: "Bent-over Row (L)",   jp: "ベントオーバーロウ（左）", muscle: "広背筋・菱形筋",   tags: ["引く", "姿勢改善"],     focus: "" },
-  { name: "Romanian Deadlift",   jp: "ルーマニアンDL",           muscle: "ハムストリングス・臀部", tags: ["後面連鎖", "脚持久力"], focus: "primary" },
-  { name: "Suitcase Carry (R)",  jp: "スーツケースキャリー（右）", muscle: "体幹・腰方形筋", tags: ["体幹", "片側安定"],     focus: "" },
-  { name: "Suitcase Carry (L)",  jp: "スーツケースキャリー（左）", muscle: "体幹・腰方形筋", tags: ["体幹", "片側安定"],     focus: "" },
-  { name: "Kettlebell Halo",     jp: "ケトルベル・ハロー",       muscle: "肩・胸・体幹",     tags: ["可動域", "腕振り改善"], focus: "" },
+// ── ALL EXERCISES MASTER ──
+const ALL_EXERCISES = [
+  { id:"american_swing",   name:"American Swing",          jp:"アメリカンスイング",             muscle:"臀部・ハム・肩",        tags:["全身パワー","有酸素"],   focus:"primary" },
+  { id:"russian_swing",    name:"Russian Swing",           jp:"ロシアンスイング",               muscle:"臀部・ハム・背中",      tags:["全身パワー","有酸素"],   focus:"primary" },
+  { id:"onehand_swing_r",  name:"One-hand Swing (R)",      jp:"ワンハンドスイング（右）",       muscle:"臀部・ハム・背中",      tags:["全身パワー","片側"],     focus:"" },
+  { id:"onehand_swing_l",  name:"One-hand Swing (L)",      jp:"ワンハンドスイング（左）",       muscle:"臀部・ハム・背中",      tags:["全身パワー","片側"],     focus:"" },
+  { id:"clean_press_r",    name:"Clean & Press (R)",       jp:"クリーン＆プレス（右）",         muscle:"肩・胸・体幹",          tags:["押す","体幹安定"],       focus:"primary" },
+  { id:"clean_press_l",    name:"Clean & Press (L)",       jp:"クリーン＆プレス（左）",         muscle:"肩・胸・体幹",          tags:["押す","体幹安定"],       focus:"" },
+  { id:"goblet_squat",     name:"Goblet Squat",            jp:"ゴブレットスクワット",           muscle:"大腿四頭筋・臀部",      tags:["脚","体幹"],             focus:"primary" },
+  { id:"row_r",            name:"Bent-over Row (R)",       jp:"ベントオーバーロウ（右）",       muscle:"広背筋・菱形筋",        tags:["引く","姿勢改善"],       focus:"" },
+  { id:"row_l",            name:"Bent-over Row (L)",       jp:"ベントオーバーロウ（左）",       muscle:"広背筋・菱形筋",        tags:["引く","姿勢改善"],       focus:"" },
+  { id:"rdl",              name:"Romanian Deadlift",       jp:"ルーマニアンDL",                 muscle:"ハムストリングス・臀部", tags:["後面連鎖","脚持久力"],   focus:"primary" },
+  { id:"sl_rdl_r",         name:"Single-leg RDL (R)",      jp:"シングルレッグRDL（右）",        muscle:"ハムストリングス・臀部", tags:["後面連鎖","片側安定"],   focus:"" },
+  { id:"sl_rdl_l",         name:"Single-leg RDL (L)",      jp:"シングルレッグRDL（左）",        muscle:"ハムストリングス・臀部", tags:["後面連鎖","片側安定"],   focus:"" },
+  { id:"suitcase_r",       name:"Suitcase Carry (R)",      jp:"スーツケースキャリー（右）",     muscle:"体幹・腰方形筋",        tags:["体幹","片側安定"],       focus:"" },
+  { id:"suitcase_l",       name:"Suitcase Carry (L)",      jp:"スーツケースキャリー（左）",     muscle:"体幹・腰方形筋",        tags:["体幹","片側安定"],       focus:"" },
+  { id:"halo_r",           name:"Halo (R)",                jp:"ハロー（右回り）",               muscle:"肩・胸・体幹",          tags:["可動域","腕振り改善"],   focus:"" },
+  { id:"halo_l",           name:"Halo (L)",                jp:"ハロー（左回り）",               muscle:"肩・胸・体幹",          tags:["可動域","腕振り改善"],   focus:"" },
+  { id:"high_pull_r",      name:"High Pull (R)",           jp:"ハイプル（右）",                 muscle:"肩・僧帽筋・上背",      tags:["引く","爆発力"],         focus:"primary" },
+  { id:"high_pull_l",      name:"High Pull (L)",           jp:"ハイプル（左）",                 muscle:"肩・僧帽筋・上背",      tags:["引く","爆発力"],         focus:"" },
+  { id:"french_press",     name:"French Press",            jp:"フレンチプレス",                 muscle:"上腕三頭筋",            tags:["押す","三頭"],           focus:"" },
+  { id:"upright_row",      name:"Upright Row",             jp:"アップライトロウ",               muscle:"三角筋・僧帽筋",        tags:["肩","引く"],             focus:"primary" },
+  { id:"split_squat_r",    name:"Split Squat (R)",         jp:"スプリットスクワット（右）",     muscle:"大腿四頭筋・臀部",      tags:["脚","片側安定"],         focus:"" },
+  { id:"split_squat_l",    name:"Split Squat (L)",         jp:"スプリットスクワット（左）",     muscle:"大腿四頭筋・臀部",      tags:["脚","片側安定"],         focus:"" },
+  { id:"bent_press_r",     name:"Bent Press (R)",          jp:"ベントプレス（右）",             muscle:"肩・体幹・脚",          tags:["全身連動","押す"],       focus:"" },
+  { id:"bent_press_l",     name:"Bent Press (L)",          jp:"ベントプレス（左）",             muscle:"肩・体幹・脚",          tags:["全身連動","押す"],       focus:"" },
+  { id:"pullover",         name:"Standing Pullover",       jp:"スタンディングプルオーバー",     muscle:"広背筋・胸",            tags:["引く","可動域"],         focus:"" },
+  { id:"snatch_r",         name:"Snatch (R)",              jp:"スナッチ（右）",                 muscle:"全身",                  tags:["全身パワー","爆発力"],   focus:"primary" },
+  { id:"snatch_l",         name:"Snatch (L)",              jp:"スナッチ（左）",                 muscle:"全身",                  tags:["全身パワー","爆発力"],   focus:"" },
+  { id:"bottoms_up_r",     name:"Bottoms-up Press (R)",    jp:"ボトムアッププレス（右）",       muscle:"肩・体幹",              tags:["押す","安定"],           focus:"" },
+  { id:"bottoms_up_l",     name:"Bottoms-up Press (L)",    jp:"ボトムアッププレス（左）",       muscle:"肩・体幹",              tags:["押す","安定"],           focus:"" },
+  { id:"tgu_r",            name:"Turkish Get-up (R)",      jp:"ターキッシュゲットアップ（右）", muscle:"全身・体幹",            tags:["全身連動","安定"],       focus:"primary" },
+  { id:"tgu_l",            name:"Turkish Get-up (L)",      jp:"ターキッシュゲットアップ（左）", muscle:"全身・体幹",            tags:["全身連動","安定"],       focus:"" },
 ];
+
+// プリセット定義
+const PRESET_FULL  = ["russian_swing","clean_press_r","clean_press_l","goblet_squat","row_r","row_l","rdl","suitcase_r","suitcase_l","halo_r","halo_l"];
+const PRESET_UPPER = ["clean_press_r","clean_press_l","row_r","row_l","high_pull_r","high_pull_l","upright_row","halo_r","halo_l","suitcase_r","suitcase_l"];
+
+// アクティブな種目（IDリスト）
+let activeExIds = [...PRESET_FULL];
+
+// 実際にトレーニングで使うEXERCISES（activeExIdsから生成）
+let EXERCISES = activeExIds.map(id => ALL_EXERCISES.find(e => e.id === id)).filter(Boolean);
 
 let WORK = 40, REST = 30, TOTAL_SETS = 3;
 const circumference = 2 * Math.PI * 90;
@@ -769,15 +891,103 @@ function updateEstimatedTime() {
   const totalSec = (tmpWork + tmpRest) * EXERCISES.length * tmpSets;
   const m = Math.floor(totalSec / 60), s = totalSec % 60;
   document.getElementById('estimatedTime').innerHTML =
-    `推定時間: <strong>${m}分${s > 0 ? s + '秒' : ''}</strong>`;
+    `推定時間: <strong>${m}分${s > 0 ? s + '秒' : ''}</strong> (${EXERCISES.length}種目)`;
 }
 
 function applySettings() {
   WORK = tmpWork; REST = tmpRest; TOTAL_SETS = tmpSets;
   document.getElementById('totalSets').textContent = TOTAL_SETS;
   document.querySelector('.badge').textContent =
-    `12 kg · ${WORK}s WORK · ${REST}s REST · ${TOTAL_SETS}セット`;
+    `${WORK}s WORK · ${REST}s REST · ${TOTAL_SETS}セット`;
   closeSettings();
+  resetWorkout();
+}
+
+// ── EXERCISE SELECTOR ──
+let tmpSelectedIds = [];
+
+function openExSelector() {
+  tmpSelectedIds = [...activeExIds];
+  buildExSelectorList();
+  updatePresetHighlight();
+  updateSelectedCount();
+  document.getElementById('exSelectorOverlay').classList.add('show');
+}
+
+function closeExSelector() {
+  document.getElementById('exSelectorOverlay').classList.remove('show');
+}
+
+function buildExSelectorList() {
+  const list = document.getElementById('exSelectorList');
+  list.innerHTML = '';
+  ALL_EXERCISES.forEach(ex => {
+    const checked = tmpSelectedIds.includes(ex.id);
+    const item = document.createElement('div');
+    item.className = 'ex-check-item' + (checked ? ' checked' : '');
+    item.id = 'exsel_' + ex.id;
+    item.innerHTML = `
+      <div class="ex-check-box"></div>
+      <div class="ex-check-info">
+        <div class="ex-check-name">${ex.jp}</div>
+        <div class="ex-check-jp">${ex.name}</div>
+      </div>
+      <div class="ex-check-muscle">${ex.muscle}</div>`;
+    item.onclick = () => toggleExercise(ex.id);
+    list.appendChild(item);
+  });
+}
+
+function toggleExercise(id) {
+  const idx = tmpSelectedIds.indexOf(id);
+  if (idx >= 0) {
+    if (tmpSelectedIds.length <= 1) return; // 最低1種目
+    tmpSelectedIds.splice(idx, 1);
+    document.getElementById('exsel_' + id).classList.remove('checked');
+  } else {
+    tmpSelectedIds.push(id);
+    document.getElementById('exsel_' + id).classList.add('checked');
+  }
+  updateSelectedCount();
+  updatePresetHighlight();
+}
+
+function updateSelectedCount() {
+  document.getElementById('selectedCount').textContent = tmpSelectedIds.length;
+  document.getElementById('btnExApply').disabled = tmpSelectedIds.length === 0;
+}
+
+function applyPreset(type) {
+  let ids;
+  if (type === 'full')  ids = [...PRESET_FULL];
+  else if (type === 'upper') ids = [...PRESET_UPPER];
+  else ids = ALL_EXERCISES.map(e => e.id);
+  tmpSelectedIds = ids;
+  buildExSelectorList();
+  updateSelectedCount();
+  updatePresetHighlight();
+}
+
+function updatePresetHighlight() {
+  const isFull  = arraysEqual(tmpSelectedIds, PRESET_FULL);
+  const isUpper = arraysEqual(tmpSelectedIds, PRESET_UPPER);
+  const isAll   = tmpSelectedIds.length === ALL_EXERCISES.length;
+  document.getElementById('presetFull').classList.toggle('active', isFull);
+  document.getElementById('presetUpper').classList.toggle('active', isUpper);
+  document.getElementById('presetAll').classList.toggle('active', isAll);
+}
+
+function arraysEqual(a, b) {
+  if (a.length !== b.length) return false;
+  return a.every((v, i) => v === b[i]);
+}
+
+function applyExercises() {
+  activeExIds = [...tmpSelectedIds];
+  EXERCISES = activeExIds.map(id => ALL_EXERCISES.find(e => e.id === id)).filter(Boolean);
+  document.querySelector('.badge').textContent =
+    `${WORK}s WORK · ${REST}s REST · ${EXERCISES.length}種目`;
+  closeExSelector();
   resetWorkout();
 }
 
@@ -835,10 +1045,37 @@ function applySettings() {
 
     <div class="estimated-time" id="estimatedTime"></div>
 
+    <div class="settings-row" style="border-bottom:none; padding-bottom:0;">
+      <div>
+        <div class="settings-label">種目を編集</div>
+        <div class="settings-sub">EXERCISES</div>
+      </div>
+      <button class="btn-preset" style="margin:0;" onclick="closeSettings(); openExSelector()">編集 →</button>
+    </div>
+
     <div class="settings-actions">
       <button class="btn-settings-cancel" onclick="closeSettings()">キャンセル</button>
       <button class="btn-settings-apply" onclick="applySettings()">適用してリセット</button>
     </div>
+  </div>
+</div>
+
+<!-- EXERCISE SELECTOR OVERLAY -->
+<div class="ex-selector-overlay" id="exSelectorOverlay">
+  <div class="ex-selector-header">
+    <div class="ex-selector-title">種目を選択</div>
+    <button class="ex-selector-close" onclick="closeExSelector()">✕</button>
+  </div>
+  <div class="preset-bar">
+    <div class="preset-label">PRESET</div>
+    <button class="btn-preset" id="presetFull" onclick="applyPreset('full')">全身版</button>
+    <button class="btn-preset" id="presetUpper" onclick="applyPreset('upper')">上半身版</button>
+    <button class="btn-preset" id="presetAll" onclick="applyPreset('all')">全種目</button>
+  </div>
+  <div class="ex-selector-count">選択中: <span id="selectedCount">0</span> 種目</div>
+  <div class="ex-selector-list" id="exSelectorList"></div>
+  <div class="ex-selector-footer">
+    <button class="btn-ex-apply" id="btnExApply" onclick="applyExercises()">この種目で開始</button>
   </div>
 </div>
 
