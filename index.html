@@ -771,20 +771,24 @@ function tick() {
 
   if (timeLeft < 0) {
     if (isWork) {
+      // 最終セットの最終種目のWORK終了時はRESTをスキップして完了
+      const isLastExercise = currentExIdx >= EXERCISES.length - 1;
+      const isLastSet = currentSet >= TOTAL_SETS;
+      if (isLastExercise && isLastSet) {
+        totalCompletedSets++;
+        clearInterval(interval); clearInterval(elapsedInterval);
+        isRunning = false; soundComplete(); releaseWakeLock();
+        document.getElementById('finTotalTime').textContent = formatElapsed(elapsedSeconds);
+        document.getElementById('finExCount').textContent = EXERCISES.length * TOTAL_SETS;
+        document.getElementById('finishedOverlay').classList.add('show');
+        return;
+      }
       soundWorkEnd();
       isWork = false; timeLeft = REST; flash('rest');
     } else {
       currentExIdx++;
       if (currentExIdx >= EXERCISES.length) {
         totalCompletedSets++;
-        if (currentSet >= TOTAL_SETS) {
-          clearInterval(interval); clearInterval(elapsedInterval);
-          isRunning = false; soundComplete(); releaseWakeLock();
-          document.getElementById('finTotalTime').textContent = formatElapsed(elapsedSeconds);
-          document.getElementById('finExCount').textContent = EXERCISES.length * TOTAL_SETS;
-          document.getElementById('finishedOverlay').classList.add('show');
-          return;
-        }
         currentSet++; currentExIdx = 0;
       }
       soundRestEnd();
