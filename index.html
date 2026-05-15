@@ -590,12 +590,15 @@ const ALL_EXERCISES = [
   { id:"russian_swing",    name:"Russian Swing",           jp:"ロシアンスイング",               muscle:"臀部・ハム・背中",      tags:["全身パワー","有酸素"],   focus:"primary" },
   { id:"onehand_swing_r",  name:"One-hand Swing (R)",      jp:"ワンハンドスイング（右）",       muscle:"臀部・ハム・背中",      tags:["全身パワー","片側"],     focus:"" },
   { id:"onehand_swing_l",  name:"One-hand Swing (L)",      jp:"ワンハンドスイング（左）",       muscle:"臀部・ハム・背中",      tags:["全身パワー","片側"],     focus:"" },
+  { id:"clean_r",          name:"Clean (R)",               jp:"クリーン（右）",                 muscle:"臀部・ハム・肩・体幹",  tags:["全身パワー","爆発力"],   focus:"" },
+  { id:"clean_l",          name:"Clean (L)",               jp:"クリーン（左）",                 muscle:"臀部・ハム・肩・体幹",  tags:["全身パワー","爆発力"],   focus:"" },
   { id:"clean_press_r",    name:"Clean & Press (R)",       jp:"クリーン＆プレス（右）",         muscle:"肩・胸・体幹",          tags:["押す","体幹安定"],       focus:"primary" },
   { id:"clean_press_l",    name:"Clean & Press (L)",       jp:"クリーン＆プレス（左）",         muscle:"肩・胸・体幹",          tags:["押す","体幹安定"],       focus:"" },
   { id:"goblet_squat",     name:"Goblet Squat",            jp:"ゴブレットスクワット",           muscle:"大腿四頭筋・臀部",      tags:["脚","体幹"],             focus:"primary" },
   { id:"row_r",            name:"Bent-over Row (R)",       jp:"ベントオーバーロウ（右）",       muscle:"広背筋・菱形筋",        tags:["引く","姿勢改善"],       focus:"" },
   { id:"row_l",            name:"Bent-over Row (L)",       jp:"ベントオーバーロウ（左）",       muscle:"広背筋・菱形筋",        tags:["引く","姿勢改善"],       focus:"" },
   { id:"rdl",              name:"Romanian Deadlift",       jp:"ルーマニアンDL",                 muscle:"ハムストリングス・臀部", tags:["後面連鎖","脚持久力"],   focus:"primary" },
+  { id:"deadlift",         name:"Deadlift",                jp:"デッドリフト",                   muscle:"ハムストリングス・臀部・背中", tags:["後面連鎖","全身"],  focus:"primary" },
   { id:"sl_rdl_r",         name:"Single-leg RDL (R)",      jp:"シングルレッグRDL（右）",        muscle:"ハムストリングス・臀部", tags:["後面連鎖","片側安定"],   focus:"" },
   { id:"sl_rdl_l",         name:"Single-leg RDL (L)",      jp:"シングルレッグRDL（左）",        muscle:"ハムストリングス・臀部", tags:["後面連鎖","片側安定"],   focus:"" },
   { id:"suitcase_r",       name:"Suitcase Carry (R)",      jp:"スーツケースキャリー（右）",     muscle:"体幹・腰方形筋",        tags:["体幹","片側安定"],       focus:"" },
@@ -623,8 +626,8 @@ const ALL_EXERCISES = [
 ];
 
 // プリセット定義
-const PRESET_FULL  = ["russian_swing","clean_press_r","clean_press_l","goblet_squat","row_r","row_l","rdl","suitcase_r","suitcase_l","halo_r","halo_l"];
-const PRESET_UPPER = ["clean_press_r","clean_press_l","row_r","row_l","high_pull_r","high_pull_l","upright_row","halo_r","halo_l","suitcase_r","suitcase_l"];
+const PRESET_FULL  = ["onehand_swing_r","onehand_swing_l","goblet_squat","clean_r","clean_l","deadlift","split_squat_r","split_squat_l"];
+const PRESET_UPPER = ["row_r","row_l","high_pull_r","high_pull_l","shoulder_press_r","shoulder_press_l","halo_r","halo_l","suitcase_r","suitcase_l"];
 
 // アクティブな種目（IDリスト）
 let activeExIds = [...PRESET_FULL];
