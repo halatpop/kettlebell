@@ -535,7 +535,7 @@
 
 <div class="countdown-overlay" id="countdownOverlay">
   <div class="countdown-label">GET READY</div>
-  <div class="countdown-number" id="countdownNumber">5</div>
+  <div class="countdown-number" id="countdownNumber">10</div>
   <div class="countdown-sub">トレーニング開始まで…</div>
 </div>
 
@@ -623,6 +623,7 @@ const ALL_EXERCISES = [
   { id:"shoulder_press_r", name:"Shoulder Press (R)",      jp:"ショルダープレス（右）",         muscle:"三角筋・上腕三頭筋",    tags:["押す","肩"],             focus:"" },
   { id:"shoulder_press_l", name:"Shoulder Press (L)",      jp:"ショルダープレス（左）",         muscle:"三角筋・上腕三頭筋",    tags:["押す","肩"],             focus:"" },
   { id:"front_raise",      name:"Front Raise",             jp:"フロントレイズ",                 muscle:"三角筋前部",            tags:["肩","前部"],             focus:"" },
+  { id:"arm_curl",         name:"Arm Curl",                jp:"アームカール",                   muscle:"上腕二頭筋",            tags:["引く","二頭"],           focus:"" },
 ];
 
 // プリセット定義
@@ -838,7 +839,7 @@ document.addEventListener('visibilitychange', async () => {
 // ── COUNTDOWN ──
 let countdownTimer = null;
 function startCountdown(callback) {
-  let count = 5;
+  let count = 10;
   const overlay = document.getElementById('countdownOverlay');
   const numEl   = document.getElementById('countdownNumber');
   overlay.classList.add('show');
