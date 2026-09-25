@@ -629,25 +629,66 @@ const ALL_EXERCISES = [
   { id:"uppercut_l",       name:"Kettlebell Uppercut (L)", jp:"ケトルベル・アッパーカット（左）", muscle:"肩・体幹・腕",        tags:["回転","爆発力"],         focus:"" },
   { id:"windmill_r",       name:"Windmill (R)",            jp:"ウィンドミル（右）",             muscle:"体幹・肩・ハム",        tags:["体幹","可動域"],         focus:"" },
   { id:"windmill_l",       name:"Windmill (L)",            jp:"ウィンドミル（左）",             muscle:"体幹・肩・ハム",        tags:["体幹","可動域"],         focus:"" },
+  { id:"pullover",         name:"Pullover",                jp:"プルオーバー",                   muscle:"広背筋・胸・上腕三頭筋",tags:["引く","可動域"],         focus:"" },
 ];
 
 // プリセット定義
 const PRESET_FULL  = ["onehand_swing_r","onehand_swing_l","goblet_squat","clean_r","clean_l","deadlift","split_squat_r","split_squat_l"];
 const PRESET_UPPER = ["row_r","row_l","high_pull_r","high_pull_l","shoulder_press_r","shoulder_press_l","halo_r","halo_l","suitcase_r","suitcase_l"];
 
-// アクティブな種目（IDリスト）
+// アクティブな種目（loadSettingsで初期化される）
 let activeExIds = [...PRESET_FULL];
 
-// 実際にトレーニングで使うEXERCISES（activeExIdsから生成）
-let EXERCISES = activeExIds.map(id => ALL_EXERCISES.find(e => e.id === id)).filter(Boolean);
+// 実際にトレーニングで使うEXERCISES（loadSettings後に上書き）
+let EXERCISES = [];
 
 let WORK = 40, REST = 30, TOTAL_SETS = 3;
 const circumference = 2 * Math.PI * 90;
+
+// ── LOCAL STORAGE ──
+const LS_KEY = 'kb_app_settings';
+
+function saveSettings() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      activeExIds,
+      WORK, REST, TOTAL_SETS
+    }));
+  } catch(e) {}
+}
+
+function loadSettings() {
+  try {
+    const data = JSON.parse(localStorage.getItem(LS_KEY));
+    if (!data) return;
+    if (Array.isArray(data.activeExIds) && data.activeExIds.length > 0) {
+      // 有効なIDのみ残す（種目マスターに存在するもの）
+      const valid = data.activeExIds.filter(id => ALL_EXERCISES.find(e => e.id === id));
+      if (valid.length > 0) activeExIds = valid;
+    }
+    if (data.WORK)       WORK       = data.WORK;
+    if (data.REST)       REST       = data.REST;
+    if (data.TOTAL_SETS) TOTAL_SETS = data.TOTAL_SETS;
+  } catch(e) {}
+}
+
+// 設定を読み込んでEXERCISESを初期化
+loadSettings();
+EXERCISES = activeExIds.map(id => ALL_EXERCISES.find(e => e.id === id)).filter(Boolean);
 
 let currentExIdx = 0, currentSet = 1, isWork = true;
 let timeLeft = WORK, isRunning = false;
 let interval = null, elapsedSeconds = 0, elapsedInterval = null;
 let totalCompletedSets = 0;
+
+// ── 起動時UI反映 ──
+(function initUI() {
+  timeLeft = WORK;
+  document.getElementById('totalSets').textContent = TOTAL_SETS;
+  document.querySelector('.badge').textContent =
+    `${WORK}s WORK · ${REST}s REST · ${EXERCISES.length}種目`;
+  updateUI();
+})();
 
 // ── AUDIO ──
 let audioCtx = null;
@@ -947,6 +988,7 @@ function applySettings() {
   document.getElementById('totalSets').textContent = TOTAL_SETS;
   document.querySelector('.badge').textContent =
     `${WORK}s WORK · ${REST}s REST · ${TOTAL_SETS}セット`;
+  saveSettings();
   closeSettings();
   resetWorkout();
 }
@@ -1064,6 +1106,7 @@ function applyExercises() {
   EXERCISES = activeExIds.map(id => ALL_EXERCISES.find(e => e.id === id)).filter(Boolean);
   document.querySelector('.badge').textContent =
     `${WORK}s WORK · ${REST}s REST · ${EXERCISES.length}種目`;
+  saveSettings();
   closeExSelector();
   resetWorkout();
 }
