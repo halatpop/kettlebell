@@ -19,7 +19,8 @@
     --accent: #e8ff00;
     --accent2: #ff4d00;
     --text: #f0f0f0;
-    --muted: #666;
+    --muted: #a6a6a6;
+    --muted-dim: #666;
     --rest-color: #00c9a7;
     --work-color: #e8ff00;
     --safe-top: env(safe-area-inset-top, 0px);
@@ -117,7 +118,7 @@
 
   .ex-number {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 48px; color: #2a2a2a;
+    font-size: 48px; color: #454545;
     position: absolute; right: 14px; top: 8px; line-height: 1;
   }
   .ex-block-label {
@@ -189,7 +190,7 @@
   }
   .list-title {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 14px; letter-spacing: 3px; color: var(--muted); margin-bottom: 10px;
+    font-size: 14px; letter-spacing: 3px; color: var(--muted-dim); margin-bottom: 10px;
   }
   .list-item {
     display: flex; align-items: center;
@@ -200,13 +201,13 @@
   .list-item.done-item { opacity: 0.3; }
   .list-num {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px; color: var(--muted); width: 22px; text-align: right; flex-shrink: 0;
+    font-size: 18px; color: var(--muted-dim); width: 22px; text-align: right; flex-shrink: 0;
   }
   .list-item.current .list-num { color: var(--accent); }
   .list-info { flex: 1; }
   .list-name { font-size: 13px; font-weight: 700; }
-  .list-detail { font-size: 11px; color: var(--muted); margin-top: 1px; }
-  .list-muscle { font-size: 10px; color: var(--muted); text-align: right; flex-shrink: 0; }
+  .list-detail { font-size: 11px; color: var(--muted-dim); margin-top: 1px; }
+  .list-muscle { font-size: 10px; color: var(--muted-dim); text-align: right; flex-shrink: 0; }
 
   .finished-overlay {
     display: none; position: fixed; inset: 0;
@@ -549,7 +550,7 @@
     </div>
     <div class="finished-stat">
       <span class="finished-stat-val" id="finExCount">—</span>
-      <span class="finished-stat-label">セット数</span>
+      <span class="finished-stat-label">総エクササイズ数</span>
     </div>
   </div>
   <button class="btn btn-main" onclick="resetWorkout(); document.getElementById('finishedOverlay').classList.remove('show')">もう一度</button>
@@ -679,8 +680,14 @@ EXERCISES = activeExIds.map(id => ALL_EXERCISES.find(e => e.id === id)).filter(B
 
 let currentExIdx = 0, currentSet = 1, isWork = true;
 let timeLeft = WORK, isRunning = false;
-let interval = null, elapsedSeconds = 0, elapsedInterval = null;
+let elapsedSeconds = 0;
 let totalCompletedSets = 0;
+// タイムスタンプ方式タイマーの状態
+let timerLoop = null;               // 表示更新ループ
+let phaseDeadline = null;           // 現在フェーズの終了時刻(ms)
+let phaseRemainingMs = WORK * 1000; // 一時停止中の残り時間(ms)
+let runSegmentStart = null;         // 現在の実行区間の開始時刻(ms)
+let elapsedBaseMs = 0;              // 区間前に積算済みの経過時間(ms)
 
 // ── 起動時UI反映 ──
 (function initUI() {
@@ -804,12 +811,8 @@ function updateUI() {
   document.getElementById('exNumber').textContent = isWork ? currentExIdx+1 : (currentExIdx+1) % EXERCISES.length + 1;
   document.getElementById('exName').textContent = displayEx.name;
 
-  let jpText = displayEx.jp;
-  if (displayEx.name === 'Kettlebell Halo' && isWork) {
-    const elapsed = WORK - timeLeft;
-    jpText += elapsed < WORK/2 ? '　🔄 時計回り' : '　🔁 反時計回り';
-  }
-  document.getElementById('exNameJp').textContent = jpText;
+  // ハローは左右が別種目として登録済みのため、方向表示は種目名側で完結する
+  document.getElementById('exNameJp').textContent = displayEx.jp;
 
   document.getElementById('exTags').innerHTML =
     displayEx.tags.map((t,i) => `<span class="tag${i===0&&displayEx.focus==='primary'?' primary':''}">${t}</span>`).join('');
@@ -832,35 +835,73 @@ function flash(type) {
   setTimeout(() => el.className = `flash ${type}`, 200);
 }
 
-function tick() {
-  timeLeft--;
-  if (timeLeft === 5) soundWarning();
+// 時刻ベースで残り時間を計算する（setIntervalの遅延が蓄積しない）
+function timerTick() {
+  const now = Date.now();
+  if (runSegmentStart !== null) {
+    elapsedSeconds = Math.floor((elapsedBaseMs + (now - runSegmentStart)) / 1000);
+    document.getElementById('elapsedVal').textContent = formatElapsed(elapsedSeconds);
+  }
+  if (phaseDeadline === null) return;
+  const remainMs = phaseDeadline - now;
+  if (remainMs <= 0) {
+    advancePhase(false);
+    return;
+  }
+  const remainSec = Math.ceil(remainMs / 1000);
+  if (remainSec !== timeLeft) {
+    timeLeft = remainSec;
+    if (timeLeft === 5) soundWarning();
+    updateUI();
+  }
+}
 
-  if (timeLeft < 0) {
-    if (isWork) {
-      // 最終セットの最終種目のWORK終了時はRESTをスキップして完了
-      const isLastExercise = currentExIdx >= EXERCISES.length - 1;
-      const isLastSet = currentSet >= TOTAL_SETS;
-      if (isLastExercise && isLastSet) {
-        totalCompletedSets++;
-        clearInterval(interval); clearInterval(elapsedInterval);
-        isRunning = false; soundComplete(); releaseWakeLock();
-        document.getElementById('finTotalTime').textContent = formatElapsed(elapsedSeconds);
-        document.getElementById('finExCount').textContent = EXERCISES.length * TOTAL_SETS;
-        document.getElementById('finishedOverlay').classList.add('show');
-        return;
-      }
-      soundWorkEnd();
-      isWork = false; timeLeft = REST; flash('rest');
-    } else {
-      currentExIdx++;
-      if (currentExIdx >= EXERCISES.length) {
-        totalCompletedSets++;
-        currentSet++; currentExIdx = 0;
-      }
-      soundRestEnd();
-      isWork = true; timeLeft = WORK; flash('work');
+function setPhaseDuration(sec, fromSkip) {
+  timeLeft = sec;
+  if (isRunning) {
+    // 自然な遷移では前フェーズの終了時刻に連結し、誤差を蓄積させない
+    phaseDeadline = fromSkip ? Date.now() + sec * 1000 : phaseDeadline + sec * 1000;
+  } else {
+    phaseRemainingMs = sec * 1000;
+  }
+}
+
+function finishWorkout() {
+  totalCompletedSets++;
+  if (timerLoop) { clearInterval(timerLoop); timerLoop = null; }
+  if (runSegmentStart !== null) {
+    elapsedSeconds = Math.floor((elapsedBaseMs + (Date.now() - runSegmentStart)) / 1000);
+    elapsedBaseMs = elapsedSeconds * 1000;
+    runSegmentStart = null;
+  }
+  isRunning = false; soundComplete(); releaseWakeLock();
+  document.getElementById('finTotalTime').textContent = formatElapsed(elapsedSeconds);
+  document.getElementById('finExCount').textContent = EXERCISES.length * TOTAL_SETS;
+  document.getElementById('finishedOverlay').classList.add('show');
+}
+
+function advancePhase(fromSkip) {
+  if (isWork) {
+    // 最終セットの最終種目のWORK終了時はRESTをスキップして完了
+    const isLastExercise = currentExIdx >= EXERCISES.length - 1;
+    const isLastSet = currentSet >= TOTAL_SETS;
+    if (isLastExercise && isLastSet) {
+      finishWorkout();
+      updateUI();
+      return;
     }
+    soundWorkEnd();
+    isWork = false; flash('rest');
+    setPhaseDuration(REST, fromSkip);
+  } else {
+    currentExIdx++;
+    if (currentExIdx >= EXERCISES.length) {
+      totalCompletedSets++;
+      currentSet++; currentExIdx = 0;
+    }
+    soundRestEnd();
+    isWork = true; flash('work');
+    setPhaseDuration(WORK, fromSkip);
   }
   updateUI();
 }
@@ -908,19 +949,25 @@ function startCountdown(callback) {
 function toggleStartPause() {
   const btn = document.getElementById('startBtn');
   if (isRunning) {
-    clearInterval(interval); clearInterval(elapsedInterval);
+    // 一時停止：残り時間と経過時間をその時点の時刻で確定させる
+    phaseRemainingMs = Math.max(0, phaseDeadline - Date.now());
+    timeLeft = Math.ceil(phaseRemainingMs / 1000);
+    elapsedBaseMs += Date.now() - runSegmentStart;
+    runSegmentStart = null;
+    elapsedSeconds = Math.floor(elapsedBaseMs / 1000);
+    if (timerLoop) { clearInterval(timerLoop); timerLoop = null; }
     isRunning = false; btn.textContent = 'つづける';
     releaseWakeLock();
+    updateUI();
   } else {
     const isFirstStart = elapsedSeconds === 0 && currentExIdx === 0 && currentSet === 1 && isWork && timeLeft === WORK;
     const doStart = () => {
-      interval = setInterval(tick, 1000);
-      elapsedInterval = setInterval(() => {
-        elapsedSeconds++;
-        document.getElementById('elapsedVal').textContent = formatElapsed(elapsedSeconds);
-      }, 1000);
+      runSegmentStart = Date.now();
+      phaseDeadline = Date.now() + phaseRemainingMs;
+      timerLoop = setInterval(timerTick, 200);
       isRunning = true; btn.textContent = 'ポーズ';
       requestWakeLock();
+      updateUI();
     };
     if (isFirstStart) {
       startCountdown(doStart);
@@ -931,16 +978,17 @@ function toggleStartPause() {
 }
 
 function skipPhase() {
-  timeLeft = 0;
-  if (!isRunning) { tick(); updateUI(); }
+  advancePhase(true);
 }
 
 function resetWorkout() {
-  clearInterval(interval); clearInterval(elapsedInterval);
+  if (timerLoop) { clearInterval(timerLoop); timerLoop = null; }
   if (countdownTimer) { clearInterval(countdownTimer); document.getElementById('countdownOverlay').classList.remove('show'); }
   releaseWakeLock();
   isRunning = false; currentExIdx = 0; currentSet = 1;
   isWork = true; timeLeft = WORK; elapsedSeconds = 0; totalCompletedSets = 0;
+  phaseDeadline = null; phaseRemainingMs = WORK * 1000;
+  runSegmentStart = null; elapsedBaseMs = 0;
   document.getElementById('startBtn').textContent = 'スタート';
   buildDots(); buildList(); updateUI();
 }
@@ -978,7 +1026,8 @@ function adjustSetting(type, delta) {
 }
 
 function updateEstimatedTime() {
-  const totalSec = (tmpWork + tmpRest) * EXERCISES.length * tmpSets;
+  const totalPhases = EXERCISES.length * tmpSets;
+  const totalSec = totalPhases * tmpWork + (totalPhases - 1) * tmpRest;
   const m = Math.floor(totalSec / 60), s = totalSec % 60;
   document.getElementById('estimatedTime').innerHTML =
     `推定時間: <strong>${m}分${s > 0 ? s + '秒' : ''}</strong> (${EXERCISES.length}種目)`;
