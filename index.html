@@ -479,8 +479,10 @@
   .progress-text { font-size: 14px; }
   .set-stat-val { font-size: 28px; }
   .set-stat-label { font-size: 12px; }
-  .btn-main { font-size: 21px; }
+  .btn-main { font-size: 20px; }
   .btn-sub { font-size: 18px; }
+  /* 2026-11-14: ボタン文字が二段になる問題への対策（漢字化＋改行禁止） */
+  .btn { white-space: nowrap; letter-spacing: 1px; }
   .list-title { font-size: 17px; }
   .list-num { font-size: 22px; }
   .list-name { font-size: 16px; }
@@ -583,7 +585,7 @@
 
 <div class="controls">
   <button class="btn btn-sub" onclick="resetWorkout()">リセット</button>
-  <button class="btn btn-main" id="startBtn" onclick="toggleStartPause()">スタート</button>
+  <button class="btn btn-main" id="startBtn" onclick="toggleStartPause()">開始</button>
   <button class="btn btn-sub" onclick="skipPhase()">スキップ</button>
 </div>
 
@@ -1014,7 +1016,7 @@ function toggleStartPause() {
     runSegmentStart = null;
     elapsedSeconds = Math.floor(elapsedBaseMs / 1000);
     if (timerLoop) { clearInterval(timerLoop); timerLoop = null; }
-    isRunning = false; btn.textContent = 'つづける';
+    isRunning = false; btn.textContent = '再開';
     releaseWakeLock();
     updateUI();
   } else {
@@ -1023,7 +1025,7 @@ function toggleStartPause() {
       runSegmentStart = Date.now();
       phaseDeadline = Date.now() + phaseRemainingMs;
       timerLoop = setInterval(timerTick, 200);
-      isRunning = true; btn.textContent = 'ポーズ';
+      isRunning = true; btn.textContent = '停止';
       requestWakeLock();
       updateUI();
     };
@@ -1047,7 +1049,7 @@ function resetWorkout() {
   isWork = true; timeLeft = WORK; elapsedSeconds = 0; totalCompletedSets = 0;
   phaseDeadline = null; phaseRemainingMs = WORK * 1000;
   runSegmentStart = null; elapsedBaseMs = 0;
-  document.getElementById('startBtn').textContent = 'スタート';
+  document.getElementById('startBtn').textContent = '開始';
   buildDots(); buildList(); updateUI();
 }
 
