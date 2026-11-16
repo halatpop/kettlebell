@@ -8,7 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kettlebell">
 <meta name="theme-color" content="#0a0a0a">
-<title>Kettlebell Full Body</title>
+<title>Kettlebell Full Body — サーキットv5</title>
+<!-- 2026-11-16: サーキットv5対応。PRESET_V5（20枠）を追加し、初期選択をv5に変更。種目マスターにコサックスクワット（左/右）を追加。保存キーを kb_app_settings_v5 に変更し、開いてすぐv5構成になるようにした。v4ファイルは変更なし。 -->
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
@@ -685,6 +686,8 @@ const ALL_EXERCISES = [
   { id:"front_raise",      name:"Front Raise",             jp:"フロントレイズ",                 muscle:"三角筋前部",            tags:["肩","前部"],             focus:"" },
   { id:"arm_curl",         name:"Arm Curl",                jp:"アームカール",                   muscle:"上腕二頭筋",            tags:["引く","二頭"],           focus:"" },
   { id:"hip_thrust",       name:"Hip Thrust",              jp:"ヒップスラスト",                 muscle:"臀部・ハムストリングス", tags:["臀部","後面連鎖"],       focus:"primary" },
+  { id:"cossack_squat_r",  name:"Cossack Squat (R)",       jp:"コサックスクワット（右）",       muscle:"内転筋・股関節・大腿四頭筋", tags:["脚","可動域"],       focus:"" },
+  { id:"cossack_squat_l",  name:"Cossack Squat (L)",       jp:"コサックスクワット（左）",       muscle:"内転筋・股関節・大腿四頭筋", tags:["脚","可動域"],       focus:"" },
   { id:"uppercut_r",       name:"Kettlebell Uppercut (R)", jp:"ケトルベル・アッパーカット（右）", muscle:"肩・体幹・腕",        tags:["回転","爆発力"],         focus:"" },
   { id:"uppercut_l",       name:"Kettlebell Uppercut (L)", jp:"ケトルベル・アッパーカット（左）", muscle:"肩・体幹・腕",        tags:["回転","爆発力"],         focus:"" },
   { id:"windmill_r",       name:"Windmill (R)",            jp:"ウィンドミル（右）",             muscle:"体幹・肩・ハム",        tags:["体幹","可動域"],         focus:"" },
@@ -697,9 +700,15 @@ const ALL_EXERCISES = [
 // プリセット定義
 const PRESET_FULL  = ["onehand_swing_r","onehand_swing_l","goblet_squat","clean_r","clean_l","deadlift","split_squat_r","split_squat_l"];
 const PRESET_UPPER = ["row_r","row_l","high_pull_r","high_pull_l","shoulder_press_r","shoulder_press_l","halo_r","halo_l","suitcase_r","suitcase_l"];
+// サーキット v4（2026-11-14 ユーザー決定：ウインドミル削除→クリーン&プレス、フロントレイズ→アップライトロー）
+// 順番は workspace/goals/kettlebell-training/files/kettlebell-circuit-v4-2026-11-14.md と同じ17枠
+const PRESET_V4 = ["russian_swing","deadlift","helicopter_l","helicopter_r","split_squat_l","split_squat_r","pullover","clean_press_l","clean_press_r","halo_l","halo_r","upright_row","arm_curl","row_l","row_r","suitcase_l","suitcase_r"];
+// サーキット v5（2026-11-16 ユーザー決定：コサックスクワット左/右を16・17枠目に追加、ヒップスラストを最終20枠目に追加）
+// 順番は workspace/goals/kettlebell-training/files/kettlebell-circuit-v5-2026-11-16.md と同じ20枠
+const PRESET_V5 = ["deadlift","russian_swing","helicopter_l","helicopter_r","split_squat_l","split_squat_r","pullover","clean_press_l","clean_press_r","halo_l","halo_r","upright_row","arm_curl","row_l","row_r","cossack_squat_l","cossack_squat_r","suitcase_l","suitcase_r","hip_thrust"];
 
 // アクティブな種目（loadSettingsで初期化される）
-let activeExIds = [...PRESET_FULL];
+let activeExIds = [...PRESET_V5];
 
 // 実際にトレーニングで使うEXERCISES（loadSettings後に上書き）
 let EXERCISES = [];
@@ -708,7 +717,7 @@ let WORK = 40, REST = 30, TOTAL_SETS = 3;
 const circumference = 2 * Math.PI * 90;
 
 // ── LOCAL STORAGE ──
-const LS_KEY = 'kb_app_settings';
+const LS_KEY = 'kb_app_settings_v5';
 
 function saveSettings() {
   try {
@@ -1190,6 +1199,8 @@ function applyPreset(type) {
   let ids;
   if (type === 'full')  ids = [...PRESET_FULL];
   else if (type === 'upper') ids = [...PRESET_UPPER];
+  else if (type === 'v4')    ids = [...PRESET_V4];
+  else if (type === 'v5')    ids = [...PRESET_V5];
   else ids = ALL_EXERCISES.map(e => e.id);
   tmpSelectedIds = ids;
   buildExSelectorList();
@@ -1200,9 +1211,13 @@ function applyPreset(type) {
 function updatePresetHighlight() {
   const isFull  = arraysEqual(tmpSelectedIds, PRESET_FULL);
   const isUpper = arraysEqual(tmpSelectedIds, PRESET_UPPER);
+  const isV4    = arraysEqual(tmpSelectedIds, PRESET_V4);
+  const isV5    = arraysEqual(tmpSelectedIds, PRESET_V5);
   const isAll   = tmpSelectedIds.length === ALL_EXERCISES.length;
   document.getElementById('presetFull').classList.toggle('active', isFull);
   document.getElementById('presetUpper').classList.toggle('active', isUpper);
+  document.getElementById('presetV4').classList.toggle('active', isV4);
+  document.getElementById('presetV5').classList.toggle('active', isV5);
   document.getElementById('presetAll').classList.toggle('active', isAll);
 }
 
@@ -1410,6 +1425,8 @@ function initDragSort() {
     <div class="preset-label">PRESET</div>
     <button class="btn-preset" id="presetFull" onclick="applyPreset('full')">全身版</button>
     <button class="btn-preset" id="presetUpper" onclick="applyPreset('upper')">上半身版</button>
+    <button class="btn-preset" id="presetV4" onclick="applyPreset('v4')">サーキットv4</button>
+    <button class="btn-preset" id="presetV5" onclick="applyPreset('v5')">サーキットv5</button>
     <button class="btn-preset" id="presetAll" onclick="applyPreset('all')">全種目</button>
   </div>
   <div class="ex-selector-count">選択中: <span id="selectedCount">0</span> 種目</div>
